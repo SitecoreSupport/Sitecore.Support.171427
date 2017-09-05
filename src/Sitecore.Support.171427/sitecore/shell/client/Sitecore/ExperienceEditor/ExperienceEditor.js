@@ -732,7 +732,7 @@
           __RequestVerificationToken: token,
           // Sitecore Support Fix #171427
           //data: unescape(JSON.stringify(commandContext))
-          data: decodeURIComponent(escape(unescape(JSON.stringify(commandContext))))
+          data: SitecoreSupport(commandContext)
           // Sitecore Support Fix #171427
         },
         success: handler,
@@ -741,6 +741,17 @@
       });
     }
   };
+  // Sitecore Support fix #171427
+  function SitecoreSupport(commandContext) {
+    // check if commandContext has the scFieldValues object
+      if (commandContext.scFieldValues !== undefined) {
+        // replace the % symbol with the encoded one
+        var newcommandContext = JSON.stringify(commandContext).replace(/%/g, "%25");
+        // encode special symbols
+        return decodeURIComponent(newcommandContext).replace(/%7b/g, "{").replace(/%7d/g, "}");
+    }
+    return decodeURIComponent(JSON.stringify(commandContext));
+  }
 
   experienceEditor.PipelinesUtil = {
     generateDialogCallProcessor: function (options) {
